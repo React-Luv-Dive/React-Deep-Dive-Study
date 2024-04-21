@@ -1,4 +1,4 @@
-## 🚀 클래스형 컴포넌트와 함수형 컴포넌트
+# 🚀 클래스형 컴포넌트와 함수형 컴포넌트
 
 ## 1️⃣ 클래스 컴포넌트
 
@@ -151,6 +151,7 @@ class SampleComponent extends React.Component<SampleProps, SampleState> {
    ```
 
 8. **shouldComponentUpdate()**
+
    1. state나 props의 변경으로 리액트 컴포넌트가 다시 리렌더링 되는 것을 막고싶다면 이 메서드를 사용할 수 있다.
    2. `setState`를 사용해도 컴포넌트가 렌더링되지 않는다.
    3. 성능 최적화 상황에서만 고려해야 한다.
@@ -169,6 +170,7 @@ class SampleComponent extends React.Component<SampleProps, SampleState> {
       1. Component의 경우 state가 업데이트 되는 대로 렌더링이 일어난다.
       2. PureCompoent의 경우 state가 업데이트 되어도 값이 바뀌지 않는다면 렌더링을 수행하지 않는다. (얕은 비교를 수행해 결과가 다를 때만 렌더링을 수행한다.)
       3. 모두 PureCompoent로 이루어져 있다면 좋을 것 같지만, 만약 컴포넌트가 얕은 비교를 했을 때 일치하지 않는 일이 더 잦다면 성능에 역효과를 줄 수 있다.
+
 9. **static getDerivedStateFromProps()**
 
    1. `render`를 호출하기 직전에 호출되는 생명주기 메서드.
