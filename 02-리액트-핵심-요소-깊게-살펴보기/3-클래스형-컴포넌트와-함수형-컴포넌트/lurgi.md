@@ -142,12 +142,12 @@ class SampleComponent extends React.Component<SampleProps, SampleState> {
 
    ```tsx
    class Component extends Component<Props, State> {
-   // ...
-   	componentWillUnmount**() {**
-   		window.removeEventListner('resize', this.resizeListener)
-   		clearInterval(this.intervalId)
-   	**}
-   }**
+     // ...
+     componentWillUnmount() {
+       window.removeEventListner("resize", this.resizeListener);
+       clearInterval(this.intervalId);
+     }
+   }
    ```
 
 8. **shouldComponentUpdate()**
@@ -158,18 +158,18 @@ class SampleComponent extends React.Component<SampleProps, SampleState> {
 
       ```tsx
       class Component extends Component<Props, State> {
-      // ...
-      	shouldComponentUpdate**(**nextProps: Props, nextState: State**) {
-      	//** true인 경우, 즉 props 혹은 state가 같지 않는 경우에만 컴포넌트를 업데이트 한다.
-      		****return this.props.title !== nextProps.title || this.state.input !== nextState.input
-      	**}
-      }**
+        // ...
+        shouldComponentUpdate(nextProps: Props, nextState: State) {
+          // true인 경우, 즉 props 혹은 state가 같지 않는 경우에만 컴포넌트를 업데이트 한다.
+          return this.props.title !== nextProps.title || this.state.input !== nextState.input;
+        }
+      }
       ```
 
-   4. **Component 클래스와 PureCompoent 클래스의 차이가 바로 이 생명주기 메서드다.**
+   4. **Component 클래스와 PureComponent 클래스의 차이가 바로 이 생명주기 메서드다.**
       1. Component의 경우 state가 업데이트 되는 대로 렌더링이 일어난다.
-      2. PureCompoent의 경우 state가 업데이트 되어도 값이 바뀌지 않는다면 렌더링을 수행하지 않는다. (얕은 비교를 수행해 결과가 다를 때만 렌더링을 수행한다.)
-      3. 모두 PureCompoent로 이루어져 있다면 좋을 것 같지만, 만약 컴포넌트가 얕은 비교를 했을 때 일치하지 않는 일이 더 잦다면 성능에 역효과를 줄 수 있다.
+      2. PureComponent의 경우 state가 업데이트 되어도 값이 바뀌지 않는다면 렌더링을 수행하지 않는다. (얕은 비교를 수행해 결과가 다를 때만 렌더링을 수행한다.)
+      3. 모두 PureComponent로 이루어져 있다면 좋을 것 같지만, 만약 컴포넌트가 얕은 비교를 했을 때 일치하지 않는 일이 더 잦다면 성능에 역효과를 줄 수 있다.
 
 9. **static getDerivedStateFromProps()**
 
@@ -179,18 +179,18 @@ class SampleComponent extends React.Component<SampleProps, SampleState> {
 
    ```tsx
    class Component extends Component<Props, State> {
-   // ...
-   	static getDerivedStateFromProps**(**nextProps: Props, nextState: State**) {
-   		//** 다음에 올 props를 바탕으로 현재 state를 변경할 수 있다.
-   		****if(props.name !== state.name){
-   			return {
-   				name: props.name,
-   			}
-   		}
+     // ...
+     static getDerivedStateFromProps(nextProps: Props, nextState: State) {
+       //** 다음에 올 props를 바탕으로 현재 state를 변경할 수 있다.
+       if (props.name !== state.name) {
+         return {
+           name: props.name,
+         };
+       }
 
-   		****return null
-   	**}
-   }**
+       return null;
+     }
+   }
    ```
 
 10. getSnapShotBeforeUpdate()
@@ -201,25 +201,25 @@ class SampleComponent extends React.Component<SampleProps, SampleState> {
 
     ```tsx
     class Component extends Component<Props, State> {
-    // ...
-    	getSnapShotBeforeUpdate**(**prevProps: Props, prevState: State**) {
-    		//** props로 넘겨받은 배열의 길이가 이전보다 길다면 현재 스크롤 높이 값을 반환한다.
-    		****if(prevProps.list.length < this.props.list.length){
-    			const list = this.listRef.current;
-    			return list.scrollHeight - list.scrollTop
-    		}
+      // ...
+      getSnapShotBeforeUpdate(prevProps: Props, prevState: State) {
+        // props로 넘겨받은 배열의 길이가 이전보다 길다면 현재 스크롤 높이 값을 반환한다.
+        if (prevProps.list.length < this.props.list.length) {
+          const list = this.listRef.current;
+          return list.scrollHeight - list.scrollTop;
+        }
 
-    		****return null
-    	**}**
+        return null;
+      }
 
-    	componentDidUpdate(prevProps: Props, prevState: State, snapShot: Snapshot**) {
-    		//** snapshot을 통해 스크롤 위치를 조정하여 기존 아이템이 스크롤에서 밀리지 않게 한다.
-    		****if(snapshot !== null){
-    			const list = this.listRef.current;
-    			list.scrollTop = list.scrollHeight - snapshot
-    		}
-    	**}
-    }**
+      componentDidUpdate(prevProps: Props, prevState: State, snapShot: Snapshot) {
+        // snapshot을 통해 스크롤 위치를 조정하여 기존 아이템이 스크롤에서 밀리지 않게 한다.
+        if (snapshot !== null) {
+          const list = this.listRef.current;
+          list.scrollTop = list.scrollHeight - snapshot;
+        }
+      }
+    }
     ```
 
     1. 위 예제는 채팅방에서는 새로운 메시지가 추가될 때 스크롤 위치를 유지하는 데 사용할 수 있다.
@@ -238,13 +238,13 @@ class SampleComponent extends React.Component<SampleProps, SampleState> {
    ```tsx
    class Component extends Component<Props, State> {
    // ...
-   	static getDerivedStateFromError**(**error: Error**) {**
+   	static getDerivedStateFromError(error: Error) {
    		return {
-   				hasError: true,
-   				errorMessage: error.toString();
+            hasError: true,
+            errorMessage: error.toString();
    		}
-   	**}
-   }**
+   	}
+   }
    ```
 
 2. **componentDidCatch()**
@@ -256,18 +256,18 @@ class SampleComponent extends React.Component<SampleProps, SampleState> {
    ```tsx
    class Component extends Component<Props, State> {
    // ...
-   	static getDerivedStateFromError**(**error: Error**) {**
+   	static getDerivedStateFromError(error: Error) {
    		return {
-   				hasError: true,
-   				errorMessage: error.toString();
+   			hasError: true,
+   			errorMessage: error.toString();
    		}
-   	**}**
+   	}
 
    	componentDidCatch(error: Error, info: ErrorInfo) {
    		console.log(error);
    		console.log(info)
    	}
-   **}**
+   }
    ```
 
 ### ❗️ 클래스 컴포넌트의 한계
