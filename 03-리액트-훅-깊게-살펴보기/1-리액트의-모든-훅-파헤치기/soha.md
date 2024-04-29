@@ -530,3 +530,143 @@ export default function App() {
 다만, 게으른 초기화 함수를 넣어줌으로 useState에 함수를 넣은 것과 같은 동일한 이점을 누릴 수 있다. 추가로 state에 대한 초기화가 필요할 때 reducer에서 이를 재활용 할 수도 있다.
 
 useReducer나 useState 둘 다 세부 작동과 쓰임에만 차이가 있을 뿐, 클로저를 활용해 값을 가둬서 state를 관리한다는 사실은 동일하다. 그렇기에 필요에 맞게 useReducer나 useState를 골라서 선택하면 된다.
+
+### 3.1.8 useImperativeHandle
+
+useImperativeHandle은 개발에 널리 사용되지 않지만, 일부 사례에서 유용하게 활용할 수 있다.  
+useImperativeHandle을 이해하기 위해서 React.forwardRef를 먼저 알아야 한다.
+
+#### forwardRef
+
+ref는 useRef에서 반환한 객체로, 리액트 컴포넌트의 props ref에 넣어 HTMLElement에 접근하는 용도로 흔히 사용된다.  
+이런 ref를 상위 컴포넌트에서 하위 컴포넌트로 전달하고 싶다면 어떻게 할까?
+
+예약어로 지정된 ref 대신에 다른 props로 받으면 된다.  
+예약어로 지정된 ref로 할 경우 props로 쓸 수 없다는 경고문과 undefined를 반환한다.
+
+forwardRef는 위에 설명한 것과 동일한 작업을 하는 리액트 API이다.  
+그렇다면 props로 구현할 수 있는 것을 왜 만든걸까?
+
+이유는 ref를 전달하는데 일관성을 제공하기 위해서이다.  
+네이밍의 자유가 존재하는 props보다는 forwardRef를 사용하면 좀 더 확실하게 ref를 전달함을 예측할 수 있다. 또한, 사용하는 쪽에서 안정적으로 받아서 사용할 수 있다.
+
+```jsx
+const ChildComponent = forwardRef((props, ref) => {
+	useEffect(() => {
+		console.log(ref);
+	}, [ref]);
+
+	return <div>Hello</div>;
+});
+
+function ParentComponent() {
+	const inputRef = useRef();
+
+	return (
+		<>
+			<input ref={inputRef} />
+			<ChildComponent ref={inputRef} />
+		</>
+	);
+}
+```
+
+ref를 받고자 하는 컴포넌트를 forwardRef로 감싸고, 두번째 인수로 ref를 전달받는다. 그리고 부모 컴포넌트에서 동일하게 props.ref를 통해 ref를 넘겨준다.
+
+#### useImperativeHandle
+
+useImperativeHandle은 부모에게서 넘겨받은 ref를 원하는대로 수정할 수 있는 훅이다.
+
+```jsx
+const Input = forwardRef((props, ref) => {
+	// useImperativeHandle을 사용하면 ref의 동작을 추가로 정의할 수 있다.
+	useImperativeHandle(
+		ref,
+		() => ({
+			alter: () => alert(props.value),
+		}),
+		// useEffect의 deps와 같다.
+		[props.value]
+	);
+
+	return <input ref={ref} {...props} />;
+});
+
+function App() {
+	// input에서 사용할 ref
+	const inputRef = useRef();
+	// input의 value
+	const [text, setText] = useState('');
+
+	function handleClick() {
+		// inputRef에 추가한 alert라는 동작을 사용할 수 있다.
+		inputRef.current.alert();
+	}
+
+	function handleChange(e) {
+		setText(e.target.value);
+	}
+
+	return (
+		<>
+			<Input ref={inputRef} value={text} onChange={handleChange} />
+			<button onClick={handleClick}>Focus</button>
+		</>
+	);
+}
+```
+
+원래 ref는 `{current: <HTMLElement>}`와 같은 형태로 HTMLElement만 주입할 수 있는 객체였다. 그러나 위 코드에서는 ref에 useImperativeHandle 훅을 사용해 추가적인 동작을 정의했다. 이로 인해, 부모는 HTMLElement 뿐만 아니라 자식 컴포넌트에서 새롭게 설정한 객체의 키와 값에 대해서도 접근할 수 있게 됐다.  
+useImperativeHandle을 사용하면 ref의 값에 원하는 값이나 액션을 정의할 수 있다.
+
+### 3.1.9 useLayoutEffect
+
+useLayoutEffect는 useEffect와 동일하나, 모든 DOM의 변경 후에 동기적으로 발생한다.  
+DOM의 변경이란, 렌더링을 뜻한다. 브라우저에서 실제로 해당 변경 사항이 반영되는 시점을 의미하는 것이 아니다.
+
+```jsx
+useEffect(() => {
+	console.log('useEffect', count);
+}, [count]);
+
+useLayoutEffect(() => {
+	console.log('useLayoutEffect', count);
+}, [count]);
+```
+
+**실행순서**
+
+1. 리액트가 DOM을 업데이트
+2. useLayoutEffect를 실행
+3. 브라우저 변경 사항을 반영
+4. useEffect를 실행
+
+useEffect가 먼저 선언돼 있지만 useLayoutEffect가 먼저 실행된다.  
+동기적으로 발생한다는 것은 useLayoutEffect의 실행이 종료될 때까지 기다린 다음에 화면을 그린다는 것을 의미한다. 즉, 리액트 컴포넌트는 useLayoutEffect가 완료될 때까지 기다려 컴포넌트가 잠시 일시중지 되는 것과 같은 일이 발생하게 되어 애플리케이션 성능에 문제가 발생할 수 있다.
+
+따라서, useLayoutEffect는 **DOM은 계산됐지만 화면에 반영되기 전에 하고 싶은 작업이 있을 때**와 같이 반드시 필요한 경우에만 사용하는 것이 좋다.
+
+### 3.1.10 useDebugValue
+
+useDebugValue는 사용자 정의 훅 내부의 내용에 대한 정보를 남길 수 있는 훅이다. 일반적으로 프로덕션 웹서비스에서 사용하는 훅이 아니다.  
+해당 훅은 리액트 애플리케이션을 개발하는 과정에서 사용되며, 디버깅하고 싶은 정보를 해당 훅에다 사용하면 리액트 개발자 도구에서 볼 수 있다.
+
+두번째 인수로 포매팅 함수를 전달하면 이에 대한 값이 변경됐을 때만 호출되어 포매팅된 값을 노출한다. 즉, 첫번째 인수와 두번째 인수의 값이 같으면 포매팅 함수는 호출되지 않는다.
+
+useDebugValue는 **오직 다른 훅 내부에서만 실행할 수 있음**을 주의해야 한다. 컴포넌트 레벨에서 실행한다면 작동되지 않는다.  
+그렇기에 공통 훅을 제공하는 라이브러리나 대규모 웹 애플리케이션에서 디버깅 관련 정보를 제공하고 싶을 때 유용하게 사용할 수 있다.
+
+### 3.1.11 훅의 규칙
+
+리액트에서 제공하는 훅을 사용하는데 몇가지 규칙이 존재하는데, 이를 **rules-of-hooks**라고 한다. 이와 관련된 ESLint 규칙인 react-hooks/rules-of-hooks도 존재한다.
+
+#### rules-of-hooks
+
+1. 최상위에서만 훅을 호출해야 한다. 반복문이나 조건문, 중첩된 함수 내에서 훅을 실행할 수 없다. 이 규칙을 따라야 컴포넌트가 렌더링될 때마다 항상 동일한 순서로 훅이 호출되는 것을 보장할 수 있다.
+
+2. 훅을 호출할 수 있는 것은 리액트 함수 컴포넌트, 혹은 사용자 정의 훅의 두가지 경우 뿐이다. 일반 자바스크립트 함수에서는 훅을 사용할 수 없다.
+
+**주의**  
+조건이나 다른 이슈로 인해 훅의 순서가 깨지거나 보장되지 않을 경우 리액트 코드는 에러를 발생시킨다.  
+그러므로 훅은 절대 조건문, 반복문 등에 의해 리액트에서 예측 불가능한 순서로 실행되어서는 안된다.  
+만약 조건문이 필요하다면 반드시 훅 내부에서 수행해야 한다.
