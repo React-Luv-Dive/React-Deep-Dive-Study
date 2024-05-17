@@ -14,3 +14,8 @@ useCounter라는 커스텀 훅을 각 컴포넌트에서 사용하지 않고 Par
 
 useState와 useEffect를 통해 useStoreSelector, useStore 등의 커스텀 훅을 만들어 리액트 외부에서 관리되는 값에 대한 변경을 추적하고 리렌더링 하도록 할 수 있다.
 이런 것을 페이스북팀에서 만든 useSubscription을 통해 수행할 수 있다.
+
+### 5.2.4 상태 관리 라이브러리 Recoil, Jotai, Zustand 살펴보기
+
+Recoil과 Jotai는 Context와 Provider, 그리고 훅을 기반으로 가능한 작은 상태를 효율적으로 관리하는데 초점을 맞춘다.  
+Zustand는 리덕스와 비슷하게 하나의 큰 스토어를 기반으로 상태를 관리하는 라이브러리이다. Recoil과 Jotai와는 다르게 하나의 큰 스토어는 Context가 아니라 스토어가 가지는 클로저를 기반으로 생성되며, 이 스토어의 상태가 변경되면 상태를 구독하고 있는 컴포넌트에 전파해 리렌더링을 알린다.
