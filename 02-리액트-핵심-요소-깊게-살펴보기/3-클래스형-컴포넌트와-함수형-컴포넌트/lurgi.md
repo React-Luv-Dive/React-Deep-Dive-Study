@@ -60,7 +60,7 @@ class SampleComponent extends React.Component<SampleProps, SampleState> {
 
 		return (
 			<h2>
-				Sample Compnent
+				Sample Component
 				<div>{required ? '필수' : '필수아님'}</div>
 				<div>문자: {text}</div>
 				<div>count: {count}</div>
@@ -110,7 +110,7 @@ class SampleComponent extends React.Component<SampleProps, SampleState> {
 3. **언마운트(unmount)**: 컴포넌트가 더 이상 존재하지 않는 시점
 4. **render()**
    1. UI를 렌더링하기 위해서 쓰인다.
-   2. `render`함수는 항상 순수해야 한다. (`render`함수 내부에선 `setstate`를 사용하면 안된다)
+   2. `render`함수는 항상 순수해야 한다. (`render`함수 내부에선 `setState`를 사용하면 안된다)
 5. **componentDidMount()**
    1. 마운트되고 호출되는 생명주기 메서드.
    2. `render`와 다르게 `setState`로 state값을 변경하는 것이 가능하다.
@@ -144,7 +144,7 @@ class SampleComponent extends React.Component<SampleProps, SampleState> {
    class Component extends Component<Props, State> {
      // ...
      componentWillUnmount() {
-       window.removeEventListner("resize", this.resizeListener);
+       window.removeEventListener("resize", this.resizeListener);
        clearInterval(this.intervalId);
      }
    }
@@ -300,7 +300,7 @@ export function SampleComponent({ required, text }: SampleProps) {
 
   return (
     <h2>
-      Sample Compnent
+      Sample Component
       <div>{required ? "필수" : "필수아님"}</div>
       <div>문자: {text}</div>
       <div>count: {count}</div>
